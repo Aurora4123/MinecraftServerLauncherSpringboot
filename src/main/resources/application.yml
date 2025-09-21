@@ -1,0 +1,8 @@
+spring:
+  application:
+      name: McServerLauncher
+server:
+  port: 25580
+  address: 0.0.0.0
+yggdrasil:
+  api-url: https://skin.nyauru.cn/api/yggdrasil
