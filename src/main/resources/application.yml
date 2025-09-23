@@ -1,4 +1,9 @@
 spring:
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 0
   application:
       name: McServerLauncher
 server:
@@ -6,3 +11,6 @@ server:
   address: 0.0.0.0
 yggdrasil:
   api-url: https://skin.nyauru.cn/api/yggdrasil
+token:
+  expire-time: 36  #token过期时间，单位是秒，你也可以在代码中硬编码，不填默认也是3600
+  secret-key: "c2VjdXJlLXNlY3JldC1rZXktZm9yLWhzNTEyLWFsZ29yaXRobS10aGlzLWlzLWEtdmVyeS1sb25nLWFuZC1zZWN1cmUtc2VjcmV0LWtleQ=="  #如果你确实要部署，请改掉token，选择一个只有你自己知道的超级无敌暴龙战士龙王哈基米密码
