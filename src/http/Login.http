@@ -3,8 +3,8 @@ POST http://localhost:25580/login
 Content-Type: application/json
 
 {
-  "username": "1652039138@qq.com",
-  "password": "112859Sunny"
+  "username": "114514@qq.com",
+  "password": "1919810"
 }
 
 ###
@@ -18,8 +18,8 @@ Content-Type: application/json
     "name": "Minecraft",
     "version": "1.20.1"
   },
-  "username": "1652039138@qq.com",
-  "password": "112859Sunny",
+  "username": "114514@qq.com",
+  "password": "1919810",
   "requestUser": false
 }
 
@@ -34,8 +34,8 @@ Content-Type: application/json
     "name": "Minecraft",
     "version": "1.20.1"
   },
-  "username": "1652039138@qq.com",
-  "password": "112859Sunny",
+  "username": "114514@qq.com",
+  "password": "1919810",
   "clientToken": "",
   "requestUser": false
 }
