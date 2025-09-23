@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "*", allowCredentials = "true")
+@CrossOrigin(origins = "*")
 public class ServerController {
     private static final Logger logger = LoggerFactory.getLogger(ServerController.class);
     
@@ -35,7 +35,7 @@ public class ServerController {
     private RedisService redisService;
     
     @PostMapping("/login")
-    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> userInfo, HttpServletResponse response) {
         logger.info("Received login request with username: {}", userInfo.get("username"));
         Map<String, Object> responseBody = new HashMap<>();
@@ -96,7 +96,7 @@ public class ServerController {
     }
 
     @PostMapping("/logout")
-    @CrossOrigin(origins = "*", allowCredentials = "true")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<Map<String, Object>> logout(@RequestBody Map<String, String> requestData, HttpServletResponse response) {
         String token = requestData.get("token");
         Map<String, Object> responseBody = new HashMap<>();
