@@ -22,12 +22,12 @@ public class TokenInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        //放行登录接口
+        // 放行登录接口
         if ("/login".equals(request.getRequestURI()) && "POST".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
 
-        //检查token
+        // 检查token
         String token = getTokenFromRequest(request);
         if (token == null) {
             logger.warn("Access denied: No token provided for request: {}", request.getRequestURI());
@@ -36,7 +36,7 @@ public class TokenInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        //验证token格式和在不在redis
+        // 验证token格式和在不在redis
         if (!tokenUtil.validateToken(token) || !redisService.validateToken(token)) {
             logger.warn("Access denied: Invalid token for request: {}", request.getRequestURI());
             response.setStatus(403);

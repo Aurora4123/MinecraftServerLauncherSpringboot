@@ -1,0 +1,18 @@
+### POST request to /login
+POST http://localhost:25580/login
+Content-Type: application/json
+
+{
+    "username":"aurora4123",
+    "password":"********"
+}
+###
+
+### POST request to /logout
+POST http://localhost:25580/logout
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhcnVvcmE0MTIzIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE2MjYxMzE5MjMsImV4cCI6MTYyNjEzMjUyM30.5ZxqwZ5Y_yY05ZyY05ZyY05ZyY05ZyY05ZyY05ZyY05
+
+{
+    "token":"--"
+}
