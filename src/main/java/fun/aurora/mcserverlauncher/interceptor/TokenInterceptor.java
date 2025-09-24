@@ -74,4 +74,6 @@ public class TokenInterceptor implements HandlerInterceptor {
         //从参数中获取
         return request.getParameter("token");
     }
+
 }
+

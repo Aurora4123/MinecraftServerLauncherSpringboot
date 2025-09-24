@@ -8,10 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,28 +94,155 @@ public class ServerController {
 
     @PostMapping("/logout")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<Map<String, Object>> logout(@RequestBody Map<String, String> requestData, HttpServletResponse response) {
-        String token = requestData.get("token");
+    public ResponseEntity<Map<String, Object>> logout(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            HttpServletResponse response) {
+
         Map<String, Object> responseBody = new HashMap<>();
+        String token = null;
 
-        if (token != null && redisService.validateToken(token)) {
-            redisService.deleteToken(token);
+        try {
+            // 从Authorization头获取token
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+                logger.debug("Received token from Authorization header");
+            } else {
+                logger.warn("No Authorization header found or invalid format");
+            }
 
-            //清除Cookie
-            Cookie tokenCookie = new Cookie("token", "");
-            tokenCookie.setHttpOnly(true);
-            tokenCookie.setSecure(false);
-            tokenCookie.setPath("/");
-            tokenCookie.setMaxAge(0);
-            response.addCookie(tokenCookie);
+            if (token == null || token.trim().isEmpty()) {
+                responseBody.put("success", false);
+                responseBody.put("message", "Token is required");
+                logger.warn("Logout failed: token is required");
+                return ResponseEntity.badRequest().body(responseBody);
+            }
 
-            responseBody.put("success", true);
-            responseBody.put("message", "Logout successful");
-        } else {
+            logger.debug("Validating token format");
+            if (!tokenUtil.validateToken(token)) {
+                responseBody.put("success", false);
+                responseBody.put("message", "Invalid token format");
+                logger.warn("Logout failed: invalid token format");
+                return ResponseEntity.badRequest().body(responseBody);
+            }
+
+            logger.debug("Checking token in Redis");
+            if (redisService.validateToken(token)) {
+                String username = redisService.getUsernameByToken(token);
+                redisService.deleteToken(token);
+
+                // 清除Cookie
+                Cookie tokenCookie = new Cookie("token", "");
+                tokenCookie.setHttpOnly(true);
+                tokenCookie.setSecure(false);
+                tokenCookie.setPath("/");
+                tokenCookie.setMaxAge(0);
+                response.addCookie(tokenCookie);
+
+                responseBody.put("success", true);
+                responseBody.put("message", "Logout successful");
+                logger.info("User {} logged out successfully", username);
+            } else {
+                responseBody.put("success", false);
+                responseBody.put("message", "Invalid token or already logged out");
+                logger.warn("Logout failed: invalid token or token not found in Redis");
+
+                // 即使token无效也清除cookie
+                Cookie tokenCookie = new Cookie("token", "");
+                tokenCookie.setHttpOnly(true);
+                tokenCookie.setSecure(false);
+                tokenCookie.setPath("/");
+                tokenCookie.setMaxAge(0);
+                response.addCookie(tokenCookie);
+            }
+
+            return ResponseEntity.ok().body(responseBody);
+
+        } catch (Exception e) {
+            logger.error("Error during logout process", e);
             responseBody.put("success", false);
-            responseBody.put("message", "Invalid token");
+            responseBody.put("message", "Internal server error during logout");
+            return ResponseEntity.status(500).body(responseBody);
         }
+    }
 
-        return ResponseEntity.ok().body(responseBody);
+    @PostMapping("/validate-token")
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<Map<String, Object>> validateToken(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        Map<String, Object> responseBody = new HashMap<>();
+        String token = null;
+
+        try {
+            //从Authorization头获取token
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+                logger.debug("Validating token from Authorization header");
+            } else {
+                responseBody.put("valid", false);
+                responseBody.put("message", "No token provided");
+                logger.warn("Token validation failed: no token provided");
+                return ResponseEntity.ok().body(responseBody);
+            }
+
+            if (token == null || token.trim().isEmpty()) {
+                responseBody.put("valid", false);
+                responseBody.put("message", "Token is empty");
+                return ResponseEntity.ok().body(responseBody);
+            }
+
+            //验证token格式
+            if (!tokenUtil.validateToken(token)) {
+                responseBody.put("valid", false);
+                responseBody.put("message", "Invalid token format");
+                logger.debug("Token validation failed: invalid format");
+                return ResponseEntity.ok().body(responseBody);
+            }
+
+            //检查token是否过期
+            if (tokenUtil.isTokenExpired(token)) {
+                responseBody.put("valid", false);
+                responseBody.put("message", "Token expired");
+                responseBody.put("expired", true);
+                logger.debug("Token validation failed: token expired");
+
+                //自动清理过期的token
+                redisService.deleteToken(token);
+                return ResponseEntity.ok().body(responseBody);
+            }
+
+            //验证Redis中的存在性
+            if (!redisService.validateToken(token)) {
+                responseBody.put("valid", false);
+                responseBody.put("message", "Token not found in storage");
+                logger.debug("Token validation failed: not found in Redis");
+                return ResponseEntity.ok().body(responseBody);
+            }
+
+            //token有效
+            String username = redisService.getUsernameByToken(token);
+            responseBody.put("valid", true);
+            responseBody.put("message", "Token is valid");
+            responseBody.put("username", username);
+            responseBody.put("expired", false);
+
+            //返回token剩余有效时间
+            Long tokenTimestamp = tokenUtil.getTokenTimestamp(token);
+            if (tokenTimestamp != null) {
+                long currentTime = System.currentTimeMillis();
+                long tokenAge = currentTime - tokenTimestamp;
+                long remainingTime = (3600 * 1000L) - tokenAge; // 1小时减去已过时间
+                responseBody.put("remainingTime", Math.max(0, remainingTime / 1000)); // 转换为秒
+            }
+
+            logger.debug("Token validation successful for user: {}", username);
+            return ResponseEntity.ok().body(responseBody);
+
+        } catch (Exception e) {
+            logger.error("Error during token validation", e);
+            responseBody.put("valid", false);
+            responseBody.put("message", "Error validating token");
+            return ResponseEntity.status(500).body(responseBody);
+        }
     }
 }

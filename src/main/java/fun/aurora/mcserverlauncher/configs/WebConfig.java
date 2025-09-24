@@ -17,7 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(tokenInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login");
+                .excludePathPatterns(new String[]{"/login", "/logout","/error", "/favicon.ico"}); //排除
     }
 
     @Override
@@ -30,4 +30,5 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(false)
                 .maxAge(3600);
     }
+
 }
