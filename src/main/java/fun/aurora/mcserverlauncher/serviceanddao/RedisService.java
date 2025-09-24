@@ -16,4 +16,10 @@ public interface RedisService {
 
     //刷新token
     void refreshToken(String token, long expireTime);
+
+    public void storeValue(String key, String value, long expireTime);
+
+    public String getValue(String key);
+
+    public void deleteValue(String key);
 }

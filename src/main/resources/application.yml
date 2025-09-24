@@ -12,5 +12,76 @@ server:
 yggdrasil:
   api-url: https://skin.nyauru.cn/api/yggdrasil
 token:
-  expire-time: 36  #token过期时间，单位是秒，你也可以在代码中硬编码，不填默认也是3600
+  expire-time: 360  #token过期时间，单位是秒，你也可以在代码中硬编码，不填默认也是3600
   secret-key: "c2VjdXJlLXNlY3JldC1rZXktZm9yLWhzNTEyLWFsZ29yaXRobS10aGlzLWlzLWEtdmVyeS1sb25nLWFuZC1zZWN1cmUtc2VjcmV0LWtleQ=="  #如果你确实要部署，请改掉token，选择一个只有你自己知道的超级无敌暴龙战士龙王哈基米密码
+launcher:
+  tasks:
+    redstone:
+      id: 1
+      command:
+        hostname1:
+          - "cd ~/redstone"
+          - "./start.sh"
+        hostname2:
+          - "cd ~/"
+          - "python3 nat-traversal -c xxx.conf"
+      shutdown-command:
+        hostname1:
+          - "pkill -f 'redstone'"
+        hostname2:
+          - "pkill -f nat-traversal"
+      telnet: "10.0.0.2"
+      max-time: 24
+      allowed-times: [ 1, 2, 3, 4 ]
+    redstone2:
+      id: 1
+      command:
+        hostname1:
+          - "cd ~/redstone"
+          - "./start.sh"
+        hostname2:
+          - "cd ~/"
+          - "python3 nat-traversal -c xxx.conf"
+      shutdown-command:
+        hostname1:
+          - "pkill -f 'redstone'"
+        hostname2:
+          - "pkill -f nat-traversal"
+      telnet: "10.0.0.2"
+      max-time: 24
+      allowed-times: [ 1, 2, 3, 4 ]
+  ping: #上传代码前注意脱敏！
+    hz1:
+      ip: "10.0.0.2"
+    sd1:
+      ip: "10.0.0.7"
+    sx1:
+      ip: "10.0.0.6"
+  time-options:
+    1: 3    #1:3小时
+    2: 6    #2:6小时
+    3: 12   #以此类推
+    4: 24
+    5: 48
+ssh:
+  execute-delay: 1000 #命令执行间隔，单位都是ms，下同，
+  connect-timeout: 10000 #连接超时
+  command-timeout: 30000 #命令超时
+  hosts: #上传代码前注意脱敏！
+    hostname1:
+      address: "10.0.0.2"
+      port: 22
+      username: "baka"
+      password: "bakabaka9"
+
+    hostname2:  #example2
+      address: "192.168.1.1"
+      port: 22
+      username: "baka"
+      password: "baka9"
+
+    hostname3:  #example3
+      address: "127.0.0.1"
+      port: 2222
+      username: "root"
+      private-key-path: "~/.ssh/root_rsa" #你可以使用rsa密钥替代密码

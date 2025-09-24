@@ -61,4 +61,17 @@ public class RedisServiceImpl implements RedisService {
             }
         }
     }
+
+    //存储值
+    public void storeValue(String key, String value, long expireTime) {
+        redisTemplate.opsForValue().set(key, value, expireTime, TimeUnit.SECONDS);
+    }
+    //获取值
+    public String getValue(String key) {
+        return (String) redisTemplate.opsForValue().get(key);
+    }
+    //删除值
+    public void deleteValue(String key) {
+        redisTemplate.delete(key);
+    }
 }
