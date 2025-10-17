@@ -18,8 +18,8 @@ Content-Type: application/json
     "name": "Minecraft",
     "version": "1.20.1"
   },
-  "username": "114514@qq.com",
-  "password": "1919810",
+  "username": "aaa@qq.com",
+  "password": "",
   "requestUser": false
 }
 
