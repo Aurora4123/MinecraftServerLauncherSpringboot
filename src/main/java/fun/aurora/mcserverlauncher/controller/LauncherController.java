@@ -1,6 +1,6 @@
 package fun.aurora.mcserverlauncher.controller;
 
-import fun.aurora.mcserverlauncher.serviceanddao.TaskService;
+import fun.aurora.mcserverlauncher.serviceanddao.impl.TaskServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +15,7 @@ import java.util.Map;
 public class LauncherController {
 
     @Resource
-    private TaskService taskService;
+    private TaskServiceImpl taskService;
 
     //获取任务状态
 
